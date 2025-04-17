@@ -1,0 +1,121 @@
+/* Reset some default styles */
+body, h2, ul, li, a, button {
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style: none;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+.navbar-toggler-icon {
+    filter: invert(1); /* Inverts colors, making it white */
+}
+
+/* Section - Flexbox Layout */
+.section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px;
+    background-color: white;
+    flex-wrap: wrap; /* Allows wrapping for smaller screens */
+}
+
+/* Text Content */
+.text-content {
+    max-width: 50%;
+}
+
+.text-content h1 {
+    font-size: 48px;
+    font-weight: bold;
+    color: black;
+}
+
+.text-content h1 span {
+    color: #0ea374e6;
+}
+
+.text-content p {
+    font-size: 18px;
+    color: #555;
+    margin-top: 10px;
+    line-height: 2.0;
+    text-align: justify;
+    max-width: 90%;
+    background: linear-gradient(to right, #ce7b23, #1abc9c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-content p span {
+    font-weight: bold;
+    color: #8e44ad;
+}
+
+.text-content a {
+    color: #2980b9;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.text-content a:hover {
+    color: #1abc9c;
+}
+
+/* Button */
+.button {
+    margin-top: 20px;
+    padding: 15px 24px;
+    background-color: #0ea374e6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    transition: 0.3s;
+    border-radius: 9px;
+}
+
+.button:hover {
+    background-color: #ef5f06;
+}
+
+/* Image Content */
+.image-content {
+    max-width: 40%;
+}
+
+.image-content img {
+    width: 100%;
+    height: auto; /* Keeps aspect ratio */
+}
+
+/* 🔹 Responsive Design for Tablets & Mobiles */
+@media screen and (max-width: 992px) {
+    .section {
+        flex-direction: column; /* Stack content vertically */
+        text-align: center;
+        padding: 30px;
+    }
+
+    .text-content, .image-content {
+        max-width: 100%;
+    }
+
+    .text-content h1 {
+        font-size: 36px;
+    }
+
+    .text-content p {
+        font-size: 16px;
+    }
+
+    .button {
+        padding: 12px 18px;
+        font-size: 16px;
+    }
+}
