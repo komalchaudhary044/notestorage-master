@@ -3,7 +3,7 @@ import "../css/styles2.css";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { auth, googleProvider, facebookProvider } from "./firebase"; // import from frontend/firebase.js
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup,FacebookAuthProvider } from "firebase/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -75,17 +75,45 @@ export default function Login() {
   };
 
   const handleFacebookLogin = async () => {
+    const auth = getAuth();  // Make sure you're using the correct auth instance
+  
     try {
       const result = await signInWithPopup(auth, facebookProvider);
       const user = result.user;
-      localStorage.setItem("userInfo", JSON.stringify({ user: { firstName: user.displayName.split(" ")[0], lastName: user.displayName.split(" ")[1], email: user.email } }));
-      alert("Logged in with Facebook!");
+  
+      // Check if the user already has an existing account with the same email
+      const signInMethods = await auth.fetchSignInMethodsForEmail(user.email);
+  
+      if (signInMethods.length > 0) {
+        // If the email is already linked to a different provider (e.g., email/password), handle it here.
+        if (signInMethods.includes("password")) {
+          // If it's linked to an email/password account, ask if they want to link the accounts
+          const credential = FacebookAuthProvider.credentialFromResult(result);
+          await auth.currentUser.linkWithCredential(credential);
+          alert("Facebook account successfully linked!");
+        } else {
+          alert("This account is already associated with another login method.");
+        }
+      } else {
+        // If no existing user (or no email conflict), proceed with the Facebook login
+        localStorage.setItem("userInfo", JSON.stringify({
+          displayName: user.displayName,
+          email: user.email,
+        }));
+        alert("Logged in with Facebook!");
+      }
+  
       navigate("/notesDashboard");
+  
     } catch (error) {
       console.error("Facebook Login Error:", error);
       alert("Facebook login failed.");
     }
   };
+  
+  
+  
+  
 
   return (
     <div>
