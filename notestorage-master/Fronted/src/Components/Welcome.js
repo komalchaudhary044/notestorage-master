@@ -13,7 +13,6 @@ export default function Welcome() {
       navigate("/login");
     }
   };
-
   return (
     <div>
       <section className="section">
