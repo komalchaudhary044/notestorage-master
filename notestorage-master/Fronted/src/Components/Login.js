@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import "../css/styles2.css";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { auth, googleProvider, facebookProvider } from "./firebase"; // import from frontend/firebase.js
-import { getAuth, GoogleAuthProvider, signInWithPopup,FacebookAuthProvider } from "firebase/auth";
+import { useNavigate, Link } from "react-router-dom";
+import { auth, googleProvider, facebookProvider } from "./firebase";
+
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  signInWithPopup,
+  fetchSignInMethodsForEmail,
+} from "firebase/auth";
 
 export default function Login() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState({ email: "", password: "" });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prevUser) => ({
@@ -18,12 +24,7 @@ export default function Login() {
     }));
   };
 
-
-
-
-
-
-  
+  //Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -54,18 +55,20 @@ export default function Login() {
     }
   };
 
+  //Handle google submit
   const handleGoogleLogin = async () => {
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
-  
+
     try {
       const result = await signInWithPopup(auth, provider);
-      // Set user info in localStorage
-      localStorage.setItem("userInfo", JSON.stringify({
-        displayName: result.user.displayName,
-        email: result.user.email
-      }));
-  
+      localStorage.setItem(
+        "userInfo",
+        JSON.stringify({
+          displayName: result.user.displayName,
+          email: result.user.email,
+        })
+      );
       alert("Google login successful!");
       navigate("/notesDashboard");
     } catch (error) {
@@ -73,21 +76,21 @@ export default function Login() {
       alert("Google login failed.");
     }
   };
-
+//Handle Facebook submit
   const handleFacebookLogin = async () => {
-    const auth = getAuth();  // Make sure you're using the correct auth instance
-  
+    const auth = getAuth();
+    const provider = new FacebookAuthProvider();
+    provider.addScope("email");
+
     try {
-      const result = await signInWithPopup(auth, facebookProvider);
+      const result = await signInWithPopup(auth, provider);
       const user = result.user;
-  
+
       // Check if the user already has an existing account with the same email
-      const signInMethods = await auth.fetchSignInMethodsForEmail(user.email);
-  
+      const signInMethods = await fetchSignInMethodsForEmail(auth, user.email);
+
       if (signInMethods.length > 0) {
-        // If the email is already linked to a different provider (e.g., email/password), handle it here.
         if (signInMethods.includes("password")) {
-          // If it's linked to an email/password account, ask if they want to link the accounts
           const credential = FacebookAuthProvider.credentialFromResult(result);
           await auth.currentUser.linkWithCredential(credential);
           alert("Facebook account successfully linked!");
@@ -95,52 +98,86 @@ export default function Login() {
           alert("This account is already associated with another login method.");
         }
       } else {
-        // If no existing user (or no email conflict), proceed with the Facebook login
-        localStorage.setItem("userInfo", JSON.stringify({
-          displayName: user.displayName,
-          email: user.email,
-        }));
+        localStorage.setItem(
+          "userInfo",
+          JSON.stringify({
+            displayName: user.displayName,
+            email: user.email || "Email not available",
+          })
+        );
         alert("Logged in with Facebook!");
       }
-  
+
       navigate("/notesDashboard");
-  
     } catch (error) {
       console.error("Facebook Login Error:", error);
       alert("Facebook login failed.");
     }
   };
-  
-  
-  
-  
 
   return (
     <div>
       <div className="container2 d-flex">
-        <div className="left-panel w-50">
-          {/* Carousel */}
-        </div>
-        <div className="right-panel w-50 d-flex align-items-center justify-content-center text-white" style={{ background: "transparent", boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.2)" }}>
+        <div className="left-panel w-50">{}</div>
+        <div
+          className="right-panel w-50 d-flex align-items-center justify-content-center text-white"
+          style={{
+            background: "transparent",
+            boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.2)",
+          }}
+        >
           <div className="form-container w-75 ">
             <h2>Login Now</h2>
-            <p>Don't have account? <Link to="/signup" className="text-warning">SignUp</Link></p>
+            <p>
+              Don't have account?{" "}
+              <Link to="/signup" className="text-warning">
+                SignUp
+              </Link>
+            </p>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <input type="email" name="email" className="form-control" placeholder="Email" value={user.email} onChange={handleChange} required />
+                <input
+                  type="email"
+                  name="email"
+                  className="form-control"
+                  placeholder="Email"
+                  value={user.email}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               <div className="mb-3">
-                <input type="password" name="password" className="form-control" placeholder="Enter your password" value={user.password} onChange={handleChange} required />
+                <input
+                  type="password"
+                  name="password"
+                  className="form-control"
+                  placeholder="Enter your password"
+                  value={user.password}
+                  onChange={handleChange}
+                  required
+                />
               </div>
-              <button type="submit" className="btn btn-warning w-100">Login Now</button>
+              <button type="submit" className="btn btn-warning w-100">
+                Login Now
+              </button>
             </form>
             <div className="text-center mt-3">Or login with</div>
             <div className="d-flex justify-content-between mt-3">
               <button className="btn btn-light w-48" onClick={handleGoogleLogin}>
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiufjMBMPwlCuWDLiEEd_e9Z6jHGRi8kP7oA&s" width="20" alt='Google' /> Google
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiufjMBMPwlCuWDLiEEd_e9Z6jHGRi8kP7oA&s"
+                  width="20"
+                  alt="Google"
+                />{" "}
+                Google
               </button>
               <button className="btn btn-light w-48" onClick={handleFacebookLogin}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" width="20" alt="Facebook" /> Facebook
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+                  width="20"
+                  alt="Facebook"
+                />{" "}
+                Facebook
               </button>
             </div>
           </div>
